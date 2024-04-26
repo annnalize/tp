@@ -1,0 +1,45 @@
+#!/bin/bash
+
+if [ -z "$1" ] || [ -z "$2" ]; then
+echo "Usage: $0 <source_folder> <destination_folder>"
+exit 1
+fi
+
+source_folder="$1"
+destination_folder="$2"
+
+if [ ! -d "$source_folder" ]; then
+echo "Error: Source folder '$source_folder' does not exist."
+exit 1
+fi
+
+if [ ! -d "$destination_folder" ]; then
+mkdir -p "$destination_folder"
+fi
+
+copy_files_recursively() {
+local source_dir="$1"
+local dest_dir="$2"
+
+for entry in "$source_dir/"*; do
+
+local dest_entry="$dest_dir/"
+
+if [ -d "$entry" ]; then
+
+if [ ! -d "$dest_entry" ]; then
+mkdir -p "$dest_entry"
+fi
+copy_files_recursively "$entry" "$dest_entry"
+else
+cp -n "$entry" "$dest_entry"
+if [ $? -eq 0 ]; then
+echo "Copied '$entry' to '$dest_dir'."
+else
+echo "Error: Failed to copy '$entry'."
+fi
+fi
+done
+}
+copy_files_recursively "$source_folder" "$destination_folder"
+echo "Finished copying files recursively."
